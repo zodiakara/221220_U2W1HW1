@@ -25,7 +25,7 @@ console.log("target --->", authorsJSONPath);
 const authorsRouter = express.Router();
 
 //1. POST add an author http://localhost:3001/authors/
-authorsRouter.post("/", (request, response) => {
+authorsRouter.post("/", (request, response, next) => {
   try {
     //   response.send({ message: "hello, I am the post route" });
     // 1. read the request body to obtain new user's data
@@ -49,23 +49,23 @@ authorsRouter.post("/", (request, response) => {
     // 6. send back the response
     response.status(200).send({ id: newAuthor.id });
   } catch (error) {
-    response.send(500).send({ message: error.message });
+    next(error);
   }
 });
 
 //2. GET all the authors http://localhost:3001/authors/
-authorsRouter.get("/", async (request, response) => {
+authorsRouter.get("/", async (request, response, next) => {
   try {
     const fileContent = fs.readFileSync(authorsJSONPath); // gives you files as buffer format
     const authors = JSON.parse(fileContent);
     response.send(authors);
   } catch (error) {
-    response.send(500).send({ message: error.message });
+    next(error);
   }
 });
 
 //3. GET a single author http://localhost:3001/authors/:authorId
-authorsRouter.get("/:authorId", async (request, response) => {
+authorsRouter.get("/:authorId", async (request, response, next) => {
   try {
     // response.send({ message: "hello, I am the GET single author route" });
     // get the user from the URL
@@ -79,12 +79,12 @@ authorsRouter.get("/:authorId", async (request, response) => {
     // don't forget to send it back as RESPONSE:
     response.send(author);
   } catch (error) {
-    response.send(500).send({ message: error.message });
+    next(error);
   }
 });
 
 //4. PUT a single author http://localhost:3001/authors/:authorId
-authorsRouter.put("/:authorId", (request, response) => {
+authorsRouter.put("/:authorId", (request, response, next) => {
   try {
     // response.send({ message: "hello, I am the UPDATE single author route" });
     const authorsArr = JSON.parse(fs.readFileSync(authorsJSONPath)); //get the authors array --> find the requested one (ID)
@@ -103,12 +103,12 @@ authorsRouter.put("/:authorId", (request, response) => {
 
     response.send(updatedAuthor);
   } catch (error) {
-    response.send(500).send({ message: error.message });
+    next(error);
   }
 });
 
 //5. DELETE a single author http://localhost:3001/authors/:authorId
-authorsRouter.delete("/:authorId", (request, response) => {
+authorsRouter.delete("/:authorId", (request, response, next) => {
   try {
     // response.send({ message: "hello, I am the DELETE single author route" });
     const authorsArr = JSON.parse(fs.readFileSync(authorsJSONPath)); //get the authors array --> find the requested one (ID)
@@ -121,7 +121,7 @@ authorsRouter.delete("/:authorId", (request, response) => {
 
     response.status(204).send();
   } catch (error) {
-    response.send(500).send({ message: error.message });
+    next(error);
   }
 });
 

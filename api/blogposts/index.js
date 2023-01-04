@@ -23,26 +23,53 @@ console.log(blogpostsJSONPath);
 
 const blogpostsRouter = express.Router();
 
-blogpostsRouter.post("/", (req, res) => {
-  console.log("request body:", req.body);
-  const newPost = {
-    ...req.body,
-    createdAt: new Date(),
-    id: uniqid(),
-  };
-  console.log(newPost);
+blogpostsRouter.post("/", (req, res, error) => {
+  try {
+    console.log("request body:", req.body);
+    const newPost = {
+      ...req.body,
+      createdAt: new Date(),
+      id: uniqid(),
+    };
+    console.log(newPost);
 
-  const postsArray = JSON.parse(fs.readFileSync(blogpostsJSONPath));
-  postsArray.push(newPost);
-  fs.writeFileSync(blogpostsJSONPath, JSON.stringify(postsArray));
+    const postsArray = JSON.parse(fs.readFileSync(blogpostsJSONPath));
+    za;
+    postsArray.push(newPost);
+    fs.writeFileSync(blogpostsJSONPath, JSON.stringify(postsArray));
 
-  res.status(200).send({ id: newPost.id });
+    res.status(200).send({ id: newPost.id });
+  } catch (error) {
+    next(error);
+  }
 });
 
-blogpostsRouter.get("/", (req, res) => {
-  const fileContent = fs.readFileSync(blogpostsJSONPath);
-  const blogposts = JSON.parse(fileContent);
-  res.send(blogposts);
+blogpostsRouter.get("/", (req, res, next) => {
+  try {
+    const fileContent = fs.readFileSync(blogpostsJSONPath);
+    const blogposts = JSON.parse(fileContent);
+    res.send(blogposts);
+  } catch (error) {
+    next(error);
+  }
 });
 
+blogpostsRouter.get("/blogpostId", (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+});
+blogpostsRouter.put("/blogpostId", (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+});
+blogpostsRouter.delete("/blogpostId", (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+});
 export default blogpostsRouter;
