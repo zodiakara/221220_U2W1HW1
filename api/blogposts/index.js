@@ -14,16 +14,22 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import uniqid from "uniqid";
+import httpErrors from "http-errors";
+
+const { NotFound, Unauthorized, BadRequest } = httpErrors;
 
 const blogpostsJSONPath = join(
   dirname(fileURLToPath(import.meta.url)),
   "blogposts.json"
 );
-console.log(blogpostsJSONPath);
 
 const blogpostsRouter = express.Router();
 
-blogpostsRouter.post("/", (req, res, error) => {
+const getBlogposts = (jsonPath) => JSON.parse(fs.readFileSync(jsonPath));
+const writeBlogposts = (jsonPath, dataArray) =>
+  fs.writeFileSync(jsonPath, JSON.stringify(dataArray));
+
+blogpostsRouter.post("/", (req, res, next) => {
   try {
     console.log("request body:", req.body);
     const newPost = {
@@ -33,10 +39,9 @@ blogpostsRouter.post("/", (req, res, error) => {
     };
     console.log(newPost);
 
-    const postsArray = JSON.parse(fs.readFileSync(blogpostsJSONPath));
-    za;
+    const postsArray = getBlogposts(blogpostsJSONPath);
     postsArray.push(newPost);
-    fs.writeFileSync(blogpostsJSONPath, JSON.stringify(postsArray));
+    writeBlogposts(blogpostsJSONPath, postsArray);
 
     res.status(200).send({ id: newPost.id });
   } catch (error) {
@@ -46,27 +51,36 @@ blogpostsRouter.post("/", (req, res, error) => {
 
 blogpostsRouter.get("/", (req, res, next) => {
   try {
-    const fileContent = fs.readFileSync(blogpostsJSONPath);
-    const blogposts = JSON.parse(fileContent);
+    const blogposts = getBlogposts(blogpostsJSONPath);
     res.send(blogposts);
   } catch (error) {
     next(error);
   }
 });
 
-blogpostsRouter.get("/blogpostId", (req, res, next) => {
+blogpostsRouter.get("/:blogpostId", (req, res, next) => {
+  try {
+    const blogpostId = req.params.id;
+    const blogposts = getBlogposts(blogpostsJSONPath);
+
+    const blogpost = blogposts.find((blogpost) => blogpost.id === blogpostId);
+    // if (blogpost) {
+    res.send(blogpost);
+    // } else {
+    //   next(
+    //     NotFound(`Post with id ${req.params.blogpostId} has not been found!`));
+    // }
+  } catch (error) {
+    next(error);
+  }
+});
+blogpostsRouter.put("/:blogpostId", (req, res, next) => {
   try {
   } catch (error) {
     next(error);
   }
 });
-blogpostsRouter.put("/blogpostId", (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
-  }
-});
-blogpostsRouter.delete("/blogpostId", (req, res, next) => {
+blogpostsRouter.delete("/:blogpostId", (req, res, next) => {
   try {
   } catch (error) {
     next(error);
