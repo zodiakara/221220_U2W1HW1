@@ -75,13 +75,31 @@ blogpostsRouter.get("/:blogpostId", (req, res, next) => {
   }
 });
 blogpostsRouter.put("/:blogpostId", (req, res, next) => {
+  const blogposts = getBlogposts(blogpostsJSONPath);
+  const index = blogposts.findIndex(
+    (blogpost) => blogpost.id === req.params.blogpostId
+  );
+
+  const oldPost = blogposts[index];
+  const updatedPost = { ...oldPost, ...req.body, updatedAt: new Date() };
+  blogposts[index] = updatedPost;
+  writeBlogposts(blogpostsJSONPath, blogposts);
+  res.send(updatedPost);
+
   try {
   } catch (error) {
     next(error);
   }
 });
+
 blogpostsRouter.delete("/:blogpostId", (req, res, next) => {
   try {
+    const blogposts = getBlogposts(blogpostsJSONPath);
+    const remainingPosts = blogposts.filter(
+      (blogpost) => blogpost.id !== req.params.blogpostId
+    );
+    writeBlogposts(blogpostsJSONPath, remainingPosts);
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
