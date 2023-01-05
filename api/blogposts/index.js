@@ -15,6 +15,10 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import uniqid from "uniqid";
 import httpErrors from "http-errors";
+import {
+  checkBlogpostsSchema,
+  triggerBadRequest,
+} from "./blogpostsValidator.js";
 
 const { NotFound, Unauthorized, BadRequest } = httpErrors;
 
@@ -29,25 +33,30 @@ const getBlogposts = (jsonPath) => JSON.parse(fs.readFileSync(jsonPath));
 const writeBlogposts = (jsonPath, dataArray) =>
   fs.writeFileSync(jsonPath, JSON.stringify(dataArray));
 
-blogpostsRouter.post("/", (req, res, next) => {
-  try {
-    console.log("request body:", req.body);
-    const newPost = {
-      ...req.body,
-      createdAt: new Date(),
-      id: uniqid(),
-    };
-    console.log(newPost);
+blogpostsRouter.post(
+  "/",
+  checkBlogpostsSchema,
+  triggerBadRequest,
+  (req, res, next) => {
+    try {
+      console.log("request body:", req.body);
+      const newPost = {
+        ...req.body,
+        createdAt: new Date(),
+        id: uniqid(),
+      };
+      console.log(newPost);
 
-    const postsArray = getBlogposts(blogpostsJSONPath);
-    postsArray.push(newPost);
-    writeBlogposts(blogpostsJSONPath, postsArray);
+      const postsArray = getBlogposts(blogpostsJSONPath);
+      postsArray.push(newPost);
+      writeBlogposts(blogpostsJSONPath, postsArray);
 
-    res.status(200).send({ id: newPost.id });
-  } catch (error) {
-    next(error);
+      res.status(200).send({ id: newPost.id });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 blogpostsRouter.get("/", (req, res, next) => {
   try {
@@ -60,16 +69,17 @@ blogpostsRouter.get("/", (req, res, next) => {
 
 blogpostsRouter.get("/:blogpostId", (req, res, next) => {
   try {
-    const blogpostId = req.params.id;
     const blogposts = getBlogposts(blogpostsJSONPath);
-
-    const blogpost = blogposts.find((blogpost) => blogpost.id === blogpostId);
-    // if (blogpost) {
-    res.send(blogpost);
-    // } else {
-    //   next(
-    //     NotFound(`Post with id ${req.params.blogpostId} has not been found!`));
-    // }
+    const blogpost = blogposts.find(
+      (blogpost) => blogpost.id === req.params.blogpostId
+    );
+    if (blogpost) {
+      res.send(blogpost);
+    } else {
+      next(
+        NotFound(`Post with id ${req.params.blogpostId} has not been found!`)
+      );
+    }
   } catch (error) {
     next(error);
   }

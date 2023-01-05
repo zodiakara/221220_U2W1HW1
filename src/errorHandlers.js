@@ -4,7 +4,10 @@
 export const badRequestHandler = (error, res, req, next) => {
   //400 if the error is on my side - send an error in response, otherwise - next
   if (error.status === 400) {
-    res.status(400).send({ message: error.message });
+    res.status(400).send({
+      message: error.message,
+      list: error.errorsList.map((e) => e.message),
+    });
   } else {
     next(error);
   }
@@ -26,7 +29,7 @@ export const notFoundHandler = (error, res, req, next) => {
   }
 };
 
-export const genericErrorHandler = (error, req, res, next) => {
+export const genericErrorHandler = (error, req, res) => {
   console.log(error); //500 it is very useful to console log the specific error,
   // cause the error messages are server generated - WE WRITE THEM
   res
