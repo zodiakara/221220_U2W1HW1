@@ -1,6 +1,7 @@
 import express from "express";
-import authorsRouter from "../api/authors/index.js";
-import blogpostsRouter from "../api/blogposts/index.js";
+import authorsRouter from "./api/authors/index.js";
+import blogpostsRouter from "./api/blogposts/index.js";
+import filesRouter from "./api/files/index.js";
 import listEndpoints from "express-list-endpoints";
 import cors from "cors";
 import {
@@ -19,6 +20,7 @@ server.use(express.json()); // adding this line to define all the endpoints
 //endpoints:
 server.use("/authors", authorsRouter);
 server.use("/blogposts", blogpostsRouter);
+server.use("/files", filesRouter);
 
 // error handlers:
 server.use(badRequestHandler);
