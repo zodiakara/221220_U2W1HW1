@@ -1,7 +1,7 @@
 // error handler middlewares go here
 // eh is a function
 
-export const badRequestHandler = (error, res, req, next) => {
+export const badRequestHandler = (error, req, res, next) => {
   //400 if the error is on my side - send an error in response, otherwise - next
   if (error.status === 400) {
     res.status(400).send({
@@ -12,7 +12,7 @@ export const badRequestHandler = (error, res, req, next) => {
     next(error);
   }
 };
-export const unauthorizedHandler = (error, res, req, next) => {
+export const unauthorizedHandler = (error, req, res, next) => {
   //401 if the error is on my side - send an error in response, otherwise - next
   if (error.status === 401) {
     res.status(401).send({ message: error.message });
@@ -20,7 +20,7 @@ export const unauthorizedHandler = (error, res, req, next) => {
     next(error);
   }
 };
-export const notFoundHandler = (error, res, req, next) => {
+export const notFoundHandler = (error, req, res, next) => {
   //404 if the error is on my side - send an error in response, otherwise - next
   if (error.status === 404) {
     res.status(404).send({ message: error.message });
