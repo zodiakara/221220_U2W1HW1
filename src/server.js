@@ -4,6 +4,7 @@ import blogpostsRouter from "./api/blogposts/index.js";
 import filesRouter from "./api/files/index.js";
 import listEndpoints from "express-list-endpoints";
 import cors from "cors";
+import { join } from "path";
 import {
   badRequestHandler,
   genericErrorHandler,
@@ -14,6 +15,9 @@ import {
 const server = express();
 const port = 3001;
 
+const publicFolderPath = join(process.cwd(), "./public");
+
+server.use(express.static(publicFolderPath));
 server.use(cors());
 server.use(express.json()); // adding this line to define all the endpoints
 
