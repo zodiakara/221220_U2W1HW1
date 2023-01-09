@@ -17,6 +17,7 @@ import {
   triggerBadRequest,
 } from "./blogpostsValidator.js";
 import { getBlogposts, writeBlogposts } from "../../lib/fs-tools.js";
+import { saveNewPost, findPosts, findPostById } from "../../db/postTools.js";
 
 const { NotFound, Unauthorized, BadRequest } = httpErrors;
 
@@ -28,19 +29,8 @@ blogpostsRouter.post(
   triggerBadRequest,
   async (req, res, next) => {
     try {
-      console.log("request body:", req.body);
-      const newPost = {
-        ...req.body,
-        createdAt: new Date(),
-        id: uniqid(),
-      };
-      console.log(newPost);
-
-      const postsArray = await getBlogposts();
-      postsArray.push(newPost);
-      await writeBlogposts(postsArray);
-
-      res.status(200).send({ id: newPost.id });
+      const id = await saveNewPost(req.body);
+      res.status(200).send({ id });
     } catch (error) {
       next(error);
     }
@@ -48,7 +38,7 @@ blogpostsRouter.post(
 );
 blogpostsRouter.get("/", async (req, res, next) => {
   try {
-    const blogposts = await getBlogposts();
+    const blogposts = await findPosts();
     res.send(blogposts);
   } catch (error) {
     next(error);
@@ -56,12 +46,12 @@ blogpostsRouter.get("/", async (req, res, next) => {
 });
 blogpostsRouter.get("/:blogpostId", async (req, res, next) => {
   try {
-    const blogposts = await getBlogposts();
-    const blogpost = blogposts.find(
-      (blogpost) => blogpost.id === req.params.blogpostId
-    );
-    if (blogpost) {
-      res.send(blogpost);
+    // const blogposts = await getBlogposts();
+    // const blogpost = blogposts.find(
+    //   (blogpost) => blogpost.id === req.params.blogpostId
+    const post = await findPostById(req.params.blogpostId);
+    if (post) {
+      res.send(post);
     } else {
       next(
         NotFound(`Post with id ${req.params.blogpostId} has not been found!`)
@@ -100,4 +90,12 @@ blogpostsRouter.delete("/:blogpostId", async (req, res, next) => {
     next(error);
   }
 });
+
+blogpostsRouter.post("/:blogpostId/comments", async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default blogpostsRouter;
