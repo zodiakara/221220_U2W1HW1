@@ -5,7 +5,8 @@ import fs from "fs-extra";
 const { readJSON, writeJSON, writeFile } = fs;
 
 const dataFolderPath = join(dirname(fileURLToPath(import.meta.url)), "../data");
-const publicFolderPath = join(process.cwd(), "./public/img/authors");
+const publicAuthorsFolderPath = join(process.cwd(), "./public/img/authors");
+const publicPostsFolderPath = join(process.cwd(), "./public/img/blogposts");
 
 // console.log("current working directory:", process.cwd());
 // console.log("public folder path", publicFolderPath);
@@ -21,4 +22,7 @@ export const getAuthors = () => readJSON(authorsJSONPath);
 export const writeAuthors = (authors) => writeJSON(authorsJSONPath, authors);
 
 export const saveAuthorsAvatars = (fileName, contentAsABuffer) =>
-  writeFile(join(publicFolderPath, fileName), contentAsABuffer);
+  writeFile(join(publicAuthorsFolderPath, fileName), contentAsABuffer);
+
+export const savePostsCoverPictures = (fileName, contentAsABuffer) =>
+  writeFile(join(publicPostsFolderPath, fileName), contentAsABuffer);

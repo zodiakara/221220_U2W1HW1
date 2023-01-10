@@ -12,8 +12,14 @@
 import express from "express";
 import uniqid from "uniqid";
 import HttpError from "http-errors";
-import { getAuthors, writeAuthors } from "../../lib/fs-tools.js";
+import {
+  getAuthors,
+  saveAuthorsAvatars,
+  writeAuthors,
+} from "../../lib/fs-tools.js";
 import { checkAuthorsSchema, triggerBadRequest } from "./authorsValidator.js";
+import multer from "multer";
+import { extname } from "path";
 
 const { NotFound } = HttpError;
 
@@ -140,7 +146,42 @@ authorsRouter.delete("/:authorId", async (request, response, next) => {
   }
 });
 
-//6. POST AUTHOR AVATAR:
+//6. PATCH AUTHOR AVATAR:
 //URL: http://localhost:3001/authors/:authorId/uploadAvatar
+authorsRouter.patch(
+  "/:authorId/uploadAvatar",
+  multer().single("uploadAvatar"),
+  async (req, res, next) => {
+    try {
+      const originalFileNameExtension = extname(req.file.originalname);
+      const fileName = req.params.authorId + originalFileNameExtension;
+
+      await saveAuthorsAvatars(fileName, req.file.buffer);
+      const url = `http://localhost:3001/img/authors/${fileName}`;
+
+      const authors = await getAuthors();
+      const index = authors.findIndex(
+        (author) => author.id === req.params.authorId
+      );
+      if (index !== -1) {
+        const oldAuthor = authors[index];
+        const avatar = url;
+        // just avatar here ?
+
+        const updatedAuthor = {
+          ...oldAuthor,
+          avatar,
+          updatedAt: new Date(),
+        };
+        authors[index] = updatedAuthor;
+
+        await writeAuthors(authors);
+      }
+      res.send("file saved!");
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default authorsRouter;
