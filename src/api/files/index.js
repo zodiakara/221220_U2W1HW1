@@ -35,6 +35,8 @@ filesRouter.post(
       if (index !== -1) {
         const oldAuthor = authors[index];
         const avatar = { avatar: url };
+        // just avatar here ?
+
         const updatedAuthor = {
           ...oldAuthor,
           avatar,
