@@ -24,7 +24,7 @@ server.use(express.json()); // adding this line to define all the endpoints
 //endpoints:
 server.use("/authors", authorsRouter);
 server.use("/blogposts", blogpostsRouter);
-server.use("/files", filesRouter);
+server.use("/blogposts", filesRouter);
 
 // error handlers:
 server.use(badRequestHandler);

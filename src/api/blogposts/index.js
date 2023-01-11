@@ -29,7 +29,11 @@ import {
   findPostByIdAndUpdate,
   findPostByIdAndDelete,
 } from "../../db/postTools.js";
-import { saveNewComment } from "../../db/commentsTools.js";
+import {
+  findCommentByIdAndDelete,
+  findComments,
+  saveNewComment,
+} from "../../db/commentsTools.js";
 
 const { NotFound, Unauthorized, BadRequest } = httpErrors;
 
@@ -182,5 +186,36 @@ blogpostsRouter.post("/:blogpostId/comments", async (req, res, next) => {
     next(error);
   }
 });
+
+blogpostsRouter.get("/:blogpostId/comments", async (req, res, next) => {
+  try {
+    const comments = await findComments(req.params.blogpostId);
+
+    if (comments) {
+      res.send(comments);
+    } else {
+      next(
+        NotFound(`Post with id ${req.params.blogpostId} has not been found!`)
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+blogpostsRouter.delete(
+  "/:blogpostId/comments/:commentId",
+  async (req, res, next) => {
+    try {
+      await findCommentByIdAndDelete(
+        req.params.blogpostId,
+        req.params.commentId
+      );
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default blogpostsRouter;

@@ -1,11 +1,14 @@
 import express from "express";
 import multer from "multer";
+import { pipeline } from "stream";
 import { extname } from "path";
 import {
   getAuthors,
   writeAuthors,
   saveAuthorsAvatars,
 } from "../../lib/fs-tools.js";
+import { findPostById } from "../../db/postTools.js";
+import { getPDFReadableStream } from "../../lib/pdf-tools.js";
 
 const filesRouter = express.Router();
 
@@ -77,4 +80,23 @@ filesRouter.post(
   }
 );
 
+filesRouter.get("/:blogpostId/pdf", async (req, res, next) => {
+  try {
+    const post = await findPostById(req.params.blogpostId);
+    if (post) {
+      res.setHeader("Content-Disposition", "attachment; filename=test.pdf");
+      const source = getPDFReadableStream(post);
+      const destination = res;
+      pipeline(source, destination, (err) => {
+        if (err) console.log(err);
+      });
+    } else {
+      next(
+        NotFound(`Post with id ${req.params.blogpostId} has not been found!`)
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 export default filesRouter;

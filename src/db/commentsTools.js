@@ -20,7 +20,39 @@ export const saveNewComment = async (blogpostId, newCommentData) => {
   }
 };
 
-export const findComments = () => {};
-export const findCommentById = () => {};
+export const findComments = async (blogpostId) => {
+  const posts = await getBlogposts();
+  const index = posts.findIndex((post) => post.id === blogpostId);
+
+  if (index !== -1) {
+    return posts[index].comments;
+  } else {
+    return null;
+  }
+};
+
+export const findCommentById = (blogpostId, commentId, update) => {};
+
+//to add: update PUT method
 export const findCommentByIdAndUpdate = () => {};
-export const findCommentByIdAndDelete = () => {};
+
+export const findCommentByIdAndDelete = async (blogpostId, commentId) => {
+  const posts = await getBlogposts();
+  const index = posts.findIndex((post) => post.id === blogpostId);
+  if (index !== -1) {
+    const commentIndex = posts[index].comments.findIndex(
+      (comment) => comment.id === commentId
+    );
+    if (commentIndex !== -1) {
+      posts[index].comments = posts[index].comments.filter(
+        (comment) => comment.id !== commentId
+      );
+      await writeBlogposts(posts);
+      return posts[index].comments;
+    } else {
+      throw new createHttpError(404, `Comment with id ${commentId} not found!`);
+    }
+  } else {
+    throw new createHttpError(404, `Comment with id ${commentId} not found!`);
+  }
+};
