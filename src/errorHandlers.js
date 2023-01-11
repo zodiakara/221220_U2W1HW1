@@ -6,7 +6,6 @@ export const badRequestHandler = (error, req, res, next) => {
   if (error.status === 400) {
     res.status(400).send({
       message: error.message,
-      list: error.errorsList.map((e) => e.message),
     });
   } else {
     next(error);

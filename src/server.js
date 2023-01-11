@@ -11,11 +11,34 @@ import {
   notFoundHandler,
   unauthorizedHandler,
 } from "./errorHandlers.js";
+import createHttpError from "http-errors";
 
 const server = express();
 const port = process.env.PORT;
 
 const publicFolderPath = join(process.cwd(), "./public");
+
+const whitelist = [
+  process.env.BE_URL,
+  process.env.FE_DEV_URL,
+  process.env.FE_PROD_URL,
+];
+
+const corsOpts = {
+  // cors midleware that check if the webpage address is on the whitelist
+  origin: (origin, corsNext) => {
+    console.log("current origin:", origin);
+    if (whitelist.indexOf(origin) !== -1) {
+      // if the index is not empty, hence the address is on the white list -> continue
+      corsNext(null, true);
+    } else {
+      // if it is not -> error
+      corsNext(
+        createHttpError(400, `Origin ${origin} is not on the whitelist!!`)
+      );
+    }
+  },
+};
 
 server.use(express.static(publicFolderPath));
 server.use(cors());

@@ -1,4 +1,5 @@
 import PdfPrinter from "pdfmake";
+import { join } from "path";
 
 export const getPDFReadableStream = (post) => {
   // define font files:
@@ -10,18 +11,21 @@ export const getPDFReadableStream = (post) => {
   };
 
   const printer = new PdfPrinter(fonts);
+  const postUrl = join("./public/img/blogposts/", `${post.id}.jpg`);
 
   const docDefinition = {
     content: [
       {
-        text: `${post.title}`,
+        text: `${post.title} \n\n`,
         style: "header",
       },
       {
-        // image: `${post.cover}`,
+        image: postUrl,
+        fit: [250, 200],
+        alignment: "center",
       },
       {
-        text: `${post.content}`,
+        text: `\n\n${post.content} `,
         style: "normalText",
       },
     ],
@@ -35,9 +39,6 @@ export const getPDFReadableStream = (post) => {
         fontSize: 12,
         bold: false,
         alignment: "center",
-      },
-      image: {
-        URL,
       },
     },
   };
